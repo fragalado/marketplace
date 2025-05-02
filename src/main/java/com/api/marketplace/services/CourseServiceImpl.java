@@ -71,15 +71,50 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponseDTO updateCourse(Course course, CourseResponseDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateCourse'");
+    public CourseResponseDTO updateCourse(int id, CourseRequestDTO dto) {
+        // Obtenemos el curso por el id
+        Optional<Course> courseFind = courseRepository.findById(id);
+
+        // Comprobamos si se ha obtenido el curso
+        if (courseFind.isEmpty()) {
+            throw new RuntimeException("Course not found.");
+        }
+
+        // Si existe le añadimos los nuevos valores
+        Course course = courseFind.get();
+        if (dto.getTitle() != null) {
+            course.setTitle(dto.getTitle());
+        }
+        if (dto.getDescription() != null) {
+            course.setDescription(dto.getDescription());
+        }
+        /*
+         * if (dto.getPrice() != null) {
+         * course.setPrice(dto.getPrice());
+         * }
+         */
+        if (dto.getCategory() != null) {
+            course.setCategory(dto.getCategory());
+        }
+        if (dto.getThumbnail_url() != null) {
+            course.setThumbnail_url(dto.getThumbnail_url());
+        }
+
+        // Actualizamos el curso y lo devolvemos como ResponseDTO
+        return modelMapper.map(courseRepository.save(course), CourseResponseDTO.class);
     }
 
     @Override
-    public boolean deleteCourse(int id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteCourse'");
+    public void deleteCourse(int id) {
+        // Obtenemos el curso y comprobamos si se encuentra o no
+        Optional<Course> courseFind = courseRepository.findById(id);
+
+        if (courseFind.isEmpty()) {
+            throw new RuntimeException("Course not found.");
+        }
+
+        // Si existe lo eliminamos
+        courseRepository.deleteById(id);
     }
 
 }

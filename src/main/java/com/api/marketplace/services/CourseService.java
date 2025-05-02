@@ -2,7 +2,6 @@ package com.api.marketplace.services;
 
 import org.springframework.data.domain.Page;
 
-import com.api.marketplace.daos.Course;
 import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.CourseRequestDTO;
 import com.api.marketplace.dtos.CourseResponseDTO;
@@ -23,7 +22,7 @@ public interface CourseService {
 
     CourseResponseDTO createCourse(CourseRequestDTO dto, User instructor);
 
-    CourseResponseDTO updateCourse(Course course, CourseResponseDTO dto);
+    CourseResponseDTO updateCourse(int id, CourseRequestDTO dto);
 
-    boolean deleteCourse(int id);
+    void deleteCourse(int id);
 }

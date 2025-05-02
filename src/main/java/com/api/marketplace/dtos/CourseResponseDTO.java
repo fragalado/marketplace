@@ -3,7 +3,6 @@ package com.api.marketplace.dtos;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.api.marketplace.daos.Lesson;
 import com.api.marketplace.daos.Purchase;
 import com.api.marketplace.enums.Category;
 
@@ -28,5 +27,5 @@ public class CourseResponseDTO {
 
     private UserDTO user;
     private List<Purchase> purchases;
-    private List<Lesson> lessons;
+    private List<LessonLiteDTO> lessons;
 }

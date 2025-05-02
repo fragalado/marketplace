@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/auth")
 public class SessionController {
 
+    // Methods
+    // Register -> OK
+    // Login -> OK
+
     @Autowired
     AuthService authenticationService;
 
