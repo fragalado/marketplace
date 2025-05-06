@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.api.marketplace.enums.Category;
+import com.api.marketplace.enums.Level;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -32,10 +34,17 @@ public class Course {
     private int id;
     @Column(nullable = false)
     private String title;
+    @Column(length = 1000)
     private String description;
     private Category category;
     private float price;
+    @Column(length = 500)
     private String thumbnail_url; // URL de la imagen del curso
+    private String language;
+    private int durationMinutes;
+    private Level level;
+    private boolean published = false;
+
     @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime created_at = LocalDateTime.now();
@@ -48,6 +57,6 @@ public class Course {
     private User user; // Instructor del curso
     @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
     private List<Purchase> purchases;
-    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Lesson> lessons;
 }

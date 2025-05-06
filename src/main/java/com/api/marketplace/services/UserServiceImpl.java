@@ -1,5 +1,6 @@
 package com.api.marketplace.services;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,10 +14,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -31,8 +34,7 @@ public class UserServiceImpl implements UserService {
         User updatedUser = userRepository.save(user);
 
         // Pasamos el usuario a DTO y devolvemos
-        return new UserDTO(updatedUser.getId(), updatedUser.getUsername(), updatedUser.getEmail(),
-                updatedUser.getRole(), updatedUser.getCreated_at(), updatedUser.getUpdated_at());
+        return modelMapper.map(updatedUser, UserDTO.class);
     }
 
     @Override

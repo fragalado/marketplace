@@ -8,6 +8,7 @@ import com.api.marketplace.dtos.UserDTO;
 import com.api.marketplace.dtos.UserUpdateRequestDTO;
 import com.api.marketplace.services.UserServiceImpl;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
  * Controlador para Usuario
  */
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     // Methods
@@ -28,9 +29,11 @@ public class UserController {
     // Delete profile -> OK
 
     private final UserServiceImpl userService;
+    private final ModelMapper modelMapper;
 
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserServiceImpl userService, ModelMapper modelMapper) {
         this.userService = userService;
+        this.modelMapper = modelMapper;
     }
 
     /**
@@ -44,10 +47,10 @@ public class UserController {
     public ResponseEntity<UserDTO> profileInfo(Authentication authentication) {
         // Obtenemos el usuario autenticado que hace la petición
         User user = (User) authentication.getPrincipal();
+        System.out.println("Username: " + user.getUsername());
 
         // Pasamos el usuario a DTO
-        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getEmail(), user.getRole(),
-                user.getCreated_at(), user.getUpdated_at());
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
         return ResponseEntity.ok().body(userDTO);
     }
 

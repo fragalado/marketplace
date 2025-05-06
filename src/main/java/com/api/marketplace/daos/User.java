@@ -35,6 +35,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String username;
     @Column(nullable = false)
+    private String firstName;
+    @Column(nullable = false)
+    private String lastName;
+    @Column(length = 500)
+    private String bio;
+    @Column(length = 500)
+    private String profilePicture;
+    @Column(nullable = false)
     private String email;
     @Column(nullable = false)
     private String hashedPassword;
@@ -51,6 +59,10 @@ public class User implements UserDetails {
     List<Course> courses;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     List<Purchase> purchases;
+
+    public String getUsernameReal() {
+        return username;
+    }
 
     // UserDetails
     @Override

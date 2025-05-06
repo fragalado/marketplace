@@ -16,6 +16,10 @@ public class UserDTO {
     // Atributos
     private int id;
     private String username;
+    private String firstName;
+    private String lastName;
+    private String bio;
+    private String profilePicture;
     private String email;
     private Role role;
     private LocalDateTime created_at;

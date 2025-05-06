@@ -16,6 +16,11 @@ public class LessonResponseDTO {
     private String title;
     private String video_url;
     private int position;
+    private String description;
+    private String thumbnail_url;
+    private int durationMinutes;
+    private boolean freePreview;
+
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 

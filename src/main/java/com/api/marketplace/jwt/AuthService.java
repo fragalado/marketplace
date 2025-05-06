@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.UserLoginDTO;
 import com.api.marketplace.dtos.UserRegisterDTO;
+import com.api.marketplace.enums.Role;
 import com.api.marketplace.repositories.UserRepository;
 
 @Service
@@ -25,7 +26,14 @@ public class AuthService {
         User user = new User();
 
         user.setUsername(input.getUsername());
+        user.setFirstName(input.getFirstName());
+        user.setLastName(input.getLastName());
         user.setEmail(input.getEmail());
+        // Comprobamos que el role no sea ADMIN
+        if (input.getRole() == Role.ADMIN) {
+            throw new RuntimeException("No se puede registrar un usuario con rol ADMIN");
+        }
+        user.setRole(input.getRole());
         user.setHashedPassword(passwordEncoder.encode(input.getPassword()));
 
         return usuarioRepositorio.save(user);

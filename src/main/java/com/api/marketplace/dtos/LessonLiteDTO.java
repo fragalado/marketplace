@@ -13,4 +13,5 @@ public class LessonLiteDTO {
     private int id;
     private String title;
     private int position;
+    private String thumbnail_url;
 }

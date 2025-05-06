@@ -31,15 +31,21 @@ public class SessionController {
 
     @PostMapping("/signup")
     public ResponseEntity<User> register(@RequestBody UserRegisterDTO registerUserDto) {
-        User registeredUser = authenticationService.signup(registerUserDto);
+        try {
+            User registeredUser = authenticationService.signup(registerUserDto);
 
-        return ResponseEntity.ok(registeredUser);
+            return ResponseEntity.ok(registeredUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(null);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(null);
+        }
     }
 
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> authenticate(@RequestBody UserLoginDTO loginUserDto) {
         User authenticatedUser = authenticationService.authenticate(loginUserDto);
-
+        System.out.println("USername: " + authenticatedUser.getUsername());
         String jwtToken = jwtService.getToken(authenticatedUser);
 
         return ResponseEntity.ok(new TokenResponse(jwtToken));

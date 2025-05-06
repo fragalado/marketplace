@@ -12,5 +12,9 @@ public class LessonRequestDTO {
     // Atributos
     private String title;
     private String video_url;
+    private String description;
+    private String thumbnail_url;
+    private int durationMinutes;
+    private boolean freePreview;
     private int idCourse;
 }

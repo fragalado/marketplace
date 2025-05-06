@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.api.marketplace.daos.User;
+import com.api.marketplace.dtos.UserDTO;
 import com.api.marketplace.repositories.UserRepository;
 
 @Configuration
@@ -48,6 +50,10 @@ public class ApplicationConfiguration {
 
     @Bean
     public ModelMapper modelMapper() {
-        return new ModelMapper();
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.typeMap(User.class, UserDTO.class).addMappings(mapper -> {
+            mapper.map(User::getUsernameReal, UserDTO::setUsername);
+        });
+        return modelMapper;
     }
 }

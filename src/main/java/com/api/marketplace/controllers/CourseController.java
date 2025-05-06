@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
  * Controlador para los cursos
  */
 @RestController
-@RequestMapping("/courses")
+@RequestMapping("/api/courses")
 public class CourseController {
 
     // Methods to create:
@@ -120,6 +120,7 @@ public class CourseController {
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteCourse(@PathVariable int id) {
         try {
+            System.out.println("Ha entrado en delete course");
             courseService.deleteCourse(id);
             return ResponseEntity.ok().body("Course deleted succesfully.");
         } catch (IllegalArgumentException e) {
