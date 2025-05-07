@@ -36,14 +36,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String token = getTokenFromRequest(request);
-        final String username;
 
         if (token == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        username = jwtService.getUsernameFromToken(token);
+        String username = null;
+
+        try {
+            username = jwtService.getUsernameFromToken(token);
+        } catch (Exception e) {
+            // Token inválido o caducado: simplemente no autenticar, continuar la cadena
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -58,7 +65,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
-
         }
 
         filterChain.doFilter(request, response);

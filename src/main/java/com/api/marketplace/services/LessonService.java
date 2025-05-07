@@ -2,6 +2,8 @@ package com.api.marketplace.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 import com.api.marketplace.dtos.LessonRequestDTO;
 import com.api.marketplace.dtos.LessonResponseDTO;
 
@@ -16,6 +18,16 @@ public interface LessonService {
      * @return List<LessonResponseDTO> lista con todos los lessons
      */
     List<LessonResponseDTO> getAllLessons();
+
+    /**
+     * Metodo que devuelve una lista de lessons paginada
+     * 
+     * @param idCourse Id del curso
+     * @param page     Numero de pagina
+     * @param size     Tamanyo de la pagina
+     * @return Page<LessonResponseDTO>
+     */
+    Page<LessonResponseDTO> getAllLessonsFromCourse(int idCourse, int page, int size);
 
     /**
      * Metodo que devuelve un lesson por su id

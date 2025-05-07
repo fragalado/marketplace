@@ -49,11 +49,28 @@ public class CourseController {
      * @return Devuelve una pagina con objetos de tipo curso
      */
     @GetMapping("")
-    public ResponseEntity<Page<CourseResponseDTO>> getAllCourses(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<CourseResponseDTO>> getAllPublishedCourses(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         // Obtenemos todos los cursos de la base de datos
-        Page<CourseResponseDTO> courses = courseService.getAllCoursesPaginated(page, size);
+        Page<CourseResponseDTO> courses = courseService.getAllPublishedCoursesPaginated(page, size);
         return ResponseEntity.ok(courses);
+    }
+
+    @GetMapping("my-courses")
+    public ResponseEntity<Page<CourseResponseDTO>> getAllAuthenticatedUserCourses(Authentication authentication) {
+        try {
+            // Obtenemos el usuario autenticado
+            User user = (User) authentication.getPrincipal();
+            // Obtenemos todos los cursos del usuario autenticado
+            return ResponseEntity.ok()
+                    .body(courseService.getAllAuthenticatedUserCourses(0, 10, user));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(403).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
     }
 
     /**

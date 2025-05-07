@@ -35,7 +35,8 @@ public class SecurityConfig {
                                                 .disable())
                                 .authorizeHttpRequests(authRequest -> authRequest
                                                 .requestMatchers("/auth/**").permitAll()
-                                                .requestMatchers(HttpMethod.GET, "/api/courses", "/api/courses/{id}")
+                                                .requestMatchers(HttpMethod.GET, "/api/courses", "/api/courses/{id}",
+                                                                "/api/lessons/{id}")
                                                 .permitAll()
                                                 .anyRequest().authenticated())
                                 .sessionManagement(sessionManager -> sessionManager

@@ -9,6 +9,8 @@ import com.api.marketplace.services.LessonServiceImpl;
 
 import java.util.List;
 
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/lessons")
@@ -64,6 +67,22 @@ public class LessonController {
     }
 
     /**
+     * Get All Lessons from Course
+     * 
+     * @param idCourse Id of the Course
+     * @return ResponseEntity<Page<LessonResponseDTO>>
+     */
+    @GetMapping("/course/{idCourse}")
+    public ResponseEntity<Page<LessonResponseDTO>> getAllLessonsFromCourse(@PathVariable int idCourse,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        try {
+            return ResponseEntity.ok().body(lessonService.getAllLessonsFromCourse(idCourse, page, size));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
      * Create new Lesson
      * 
      * @param dto LessonRequestDTO object containing the lesson data
@@ -101,10 +120,14 @@ public class LessonController {
      * @return ResponseEntity<String>
      */
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteLesson(@PathVariable("id") int idLesson) {
+    public ResponseEntity<?> deleteLesson(@PathVariable("id") int idLesson) {
         try {
             lessonService.deleteLesson(idLesson);
-            return ResponseEntity.ok().body("Lesson deleted succesfully");
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (OptimisticLockingFailureException e) {
+            return ResponseEntity.status(409).body("Lesson already deleted");
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }

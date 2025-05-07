@@ -9,14 +9,16 @@ import com.api.marketplace.dtos.CourseResponseDTO;
 public interface CourseService {
 
     /**
-     * Retrieves a paginated list of all courses
+     * Retrieves a paginated list of all published courses
      * 
      * @param page   Page number to retrieve
      * @param size   Number of items per page
      * @param filter Filter to apply to the courses
      * @return A page of CourseResponseDTO objects
      */
-    Page<CourseResponseDTO> getAllCoursesPaginated(int page, int size);
+    Page<CourseResponseDTO> getAllPublishedCoursesPaginated(int page, int size);
+
+    Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated);
 
     CourseResponseDTO getCourseById(int id);
 

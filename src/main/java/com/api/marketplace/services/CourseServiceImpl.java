@@ -26,12 +26,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponseDTO> getAllCoursesPaginated(int page, int size) {
+    public Page<CourseResponseDTO> getAllPublishedCoursesPaginated(int page, int size) {
         // Creamos una pageable
         Pageable pageable = PageRequest.of(page, size);
 
         // Obtenemos la página de cursos
-        Page<Course> coursePage = courseRepository.findAll(pageable);
+        // Page<Course> coursePage = courseRepository.findAll(pageable);
+        Page<Course> coursePage = courseRepository.findByPublishedTrue(pageable);
 
         // Convertimos la página de cursos a una página de CourseResponseDTO
         Page<CourseResponseDTO> courseDtoPage = coursePage
@@ -88,16 +89,26 @@ public class CourseServiceImpl implements CourseService {
         if (dto.getDescription() != null) {
             course.setDescription(dto.getDescription());
         }
-        /*
-         * if (dto.getPrice() != null) {
-         * course.setPrice(dto.getPrice());
-         * }
-         */
+        if (dto.getPrice() > 0) {
+            course.setPrice(dto.getPrice());
+        }
         if (dto.getCategory() != null) {
             course.setCategory(dto.getCategory());
         }
         if (dto.getThumbnail_url() != null) {
             course.setThumbnail_url(dto.getThumbnail_url());
+        }
+        if (dto.getDurationMinutes() > 0) {
+            course.setDurationMinutes(dto.getDurationMinutes());
+        }
+        if (dto.getLanguage() != null) {
+            course.setLanguage(dto.getLanguage());
+        }
+        if (dto.getLevel() != null) {
+            course.setLevel(dto.getLevel());
+        }
+        if (dto.isPublished() != course.isPublished()) {
+            course.setPublished(dto.isPublished());
         }
 
         // Actualizamos el curso y lo devolvemos como ResponseDTO
@@ -115,6 +126,23 @@ public class CourseServiceImpl implements CourseService {
 
         // Si existe lo eliminamos
         courseRepository.deleteById(id);
+    }
+
+    @Override
+    public Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated) {
+        // Creamos una pageable
+        Pageable pageable = PageRequest.of(page, size);
+
+        // Obtenemos la página de cursos
+        // Page<Course> coursePage = courseRepository.findAll(pageable);
+        Page<Course> coursePage = courseRepository.findByUser(userAuthenticated, pageable);
+
+        // Convertimos la página de cursos a una página de CourseResponseDTO
+        Page<CourseResponseDTO> courseDtoPage = coursePage
+                .map(course -> modelMapper.map(course, CourseResponseDTO.class));
+
+        // Devolvemos la página
+        return courseDtoPage;
     }
 
 }
