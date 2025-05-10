@@ -1,12 +1,14 @@
 package com.api.marketplace.services;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.api.marketplace.daos.Course;
 import com.api.marketplace.daos.User;
@@ -27,122 +29,81 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Page<CourseResponseDTO> getAllPublishedCoursesPaginated(int page, int size) {
-        // Creamos una pageable
         Pageable pageable = PageRequest.of(page, size);
-
-        // Obtenemos la página de cursos
-        // Page<Course> coursePage = courseRepository.findAll(pageable);
-        Page<Course> coursePage = courseRepository.findByPublishedTrue(pageable);
-
-        // Convertimos la página de cursos a una página de CourseResponseDTO
-        Page<CourseResponseDTO> courseDtoPage = coursePage
+        return courseRepository.findByPublishedTrue(pageable)
                 .map(course -> modelMapper.map(course, CourseResponseDTO.class));
-
-        // Devolvemos la página
-        return courseDtoPage;
     }
 
     @Override
-    public CourseResponseDTO getCourseById(int id) throws RuntimeException {
-        // Obtenemos el curso por id
-        Optional<Course> course = courseRepository.findById(id);
-
-        // Comprobamos que el curso existe
-        if (course.isPresent()) {
-            return modelMapper.map(course, CourseResponseDTO.class);
-        } else {
-            // Si no existe, lanzamos una excepción
-            throw new RuntimeException("Course not found");
-        }
+    public CourseResponseDTO getCourseById(int id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
+        return modelMapper.map(course, CourseResponseDTO.class);
     }
 
     @Override
     public CourseResponseDTO createCourse(CourseRequestDTO dto, User instructor) {
         // Convertimos el DTO a DAO
         Course course = modelMapper.map(dto, Course.class);
-
-        // Asignamos el instructor al curso
+        // Le asignamos el instructor
         course.setUser(instructor);
-
-        // Guardamos el curso
-        Course courseSaved = courseRepository.save(course);
-
-        // Devolvemos el curso guardado como DTO
-        return modelMapper.map(courseSaved, CourseResponseDTO.class);
+        // Lo guardamos y el resultado lo almacenamos en una variable
+        Course saved = courseRepository.save(course);
+        // Devolvemos el resultado almacenado como DTO
+        return modelMapper.map(saved, CourseResponseDTO.class);
     }
 
     @Override
-    public CourseResponseDTO updateCourse(int id, CourseRequestDTO dto) {
-        // Obtenemos el curso por el id
-        Optional<Course> courseFind = courseRepository.findById(id);
+    public CourseResponseDTO updateCourse(int id, CourseRequestDTO dto, User authenticatedUser) {
+        // 1. Buscar el curso o lanzar 404 si no existe
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
-        // Comprobamos si se ha obtenido el curso
-        if (courseFind.isEmpty()) {
-            throw new RuntimeException("Course not found.");
-        }
-
-        // Si existe le añadimos los nuevos valores
-        Course course = courseFind.get();
-        if (dto.getTitle() != null) {
-            course.setTitle(dto.getTitle());
-        }
-        if (dto.getDescription() != null) {
-            course.setDescription(dto.getDescription());
-        }
-        if (dto.getPrice() > 0) {
-            course.setPrice(dto.getPrice());
-        }
-        if (dto.getCategory() != null) {
-            course.setCategory(dto.getCategory());
-        }
-        if (dto.getThumbnail_url() != null) {
-            course.setThumbnail_url(dto.getThumbnail_url());
-        }
-        if (dto.getDurationMinutes() > 0) {
-            course.setDurationMinutes(dto.getDurationMinutes());
-        }
-        if (dto.getLanguage() != null) {
-            course.setLanguage(dto.getLanguage());
-        }
-        if (dto.getLevel() != null) {
-            course.setLevel(dto.getLevel());
-        }
-        if (dto.isPublished() != course.isPublished()) {
-            course.setPublished(dto.isPublished());
+        // 2. Verificar que el curso pertenece al usuario autenticado
+        if (course.getUser().getId() != authenticatedUser.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar este curso");
         }
 
-        // Actualizamos el curso y lo devolvemos como ResponseDTO
-        return modelMapper.map(courseRepository.save(course), CourseResponseDTO.class);
+        // 3. Actualizamos los campos
+        course.setTitle(dto.getTitle());
+        course.setDescription(dto.getDescription());
+        course.setPrice(dto.getPrice());
+        course.setCategory(dto.getCategory());
+        course.setThumbnail_url(dto.getThumbnail_url());
+        course.setDurationMinutes(dto.getDurationMinutes());
+        course.setLanguage(dto.getLanguage());
+        course.setLevel(dto.getLevel());
+        course.setPublished(dto.isPublished());
+
+        course.setUpdated_at(LocalDateTime.now());
+
+        // 4. Guardar y devolver el resultado
+        Course updated = courseRepository.save(course);
+        return modelMapper.map(updated, CourseResponseDTO.class);
     }
 
     @Override
-    public void deleteCourse(int id) {
-        // Obtenemos el curso y comprobamos si se encuentra o no
-        Optional<Course> courseFind = courseRepository.findById(id);
+    public void deleteCourse(int id, User authenticatedUser) {
+        // 1. Buscar el curso o lanzar 404 si no existe
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
-        if (courseFind.isEmpty()) {
-            throw new RuntimeException("Course not found.");
+        // 2. Verificar que el curso pertenece al usuario autenticado
+        if (course.getUser().getId() != authenticatedUser.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar este curso");
         }
 
         // Si existe lo eliminamos
-        courseRepository.deleteById(id);
+        courseRepository.delete(course);
     }
 
     @Override
     public Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated) {
-        // Creamos una pageable
+        // Creamos objeto Pageable
         Pageable pageable = PageRequest.of(page, size);
-
-        // Obtenemos la página de cursos
-        // Page<Course> coursePage = courseRepository.findAll(pageable);
-        Page<Course> coursePage = courseRepository.findByUser(userAuthenticated, pageable);
-
-        // Convertimos la página de cursos a una página de CourseResponseDTO
-        Page<CourseResponseDTO> courseDtoPage = coursePage
+        // Obtenemos los cursos y los mapeamos para devolverlos como DTO
+        return courseRepository.findByUser(userAuthenticated, pageable)
                 .map(course -> modelMapper.map(course, CourseResponseDTO.class));
-
-        // Devolvemos la página
-        return courseDtoPage;
     }
 
 }

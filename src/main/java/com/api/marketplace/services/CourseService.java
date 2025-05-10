@@ -24,7 +24,7 @@ public interface CourseService {
 
     CourseResponseDTO createCourse(CourseRequestDTO dto, User instructor);
 
-    CourseResponseDTO updateCourse(int id, CourseRequestDTO dto);
+    CourseResponseDTO updateCourse(int id, CourseRequestDTO dto, User authenticatedUser);
 
-    void deleteCourse(int id);
+    void deleteCourse(int id, User authenticatedUser);
 }

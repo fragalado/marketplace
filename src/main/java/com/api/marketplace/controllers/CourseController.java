@@ -9,6 +9,7 @@ import com.api.marketplace.dtos.CourseResponseDTO;
 import com.api.marketplace.services.CourseServiceImpl;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,15 +26,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RestController
 @RequestMapping("/api/courses")
 public class CourseController {
-
-    // Methods to create:
-    // 1 - Get all courses -> OK
-    // 2 - Get course by id -> OK
-    // 3 - Create course -> OK
-    // 4 - Update course -> OK
-    // 5 - Delete course -> OK
-    // 6 - Get all courses by category
-    // 7 - Get all courses by instructor
 
     private final CourseServiceImpl courseService;
 
@@ -52,25 +44,18 @@ public class CourseController {
     public ResponseEntity<Page<CourseResponseDTO>> getAllPublishedCourses(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         // Obtenemos todos los cursos de la base de datos
-        Page<CourseResponseDTO> courses = courseService.getAllPublishedCoursesPaginated(page, size);
-        return ResponseEntity.ok(courses);
+        return ResponseEntity.ok(courseService.getAllPublishedCoursesPaginated(page, size));
     }
 
     @GetMapping("my-courses")
-    public ResponseEntity<Page<CourseResponseDTO>> getAllAuthenticatedUserCourses(Authentication authentication) {
-        try {
-            // Obtenemos el usuario autenticado
-            User user = (User) authentication.getPrincipal();
-            // Obtenemos todos los cursos del usuario autenticado
-            return ResponseEntity.ok()
-                    .body(courseService.getAllAuthenticatedUserCourses(0, 10, user));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(403).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+    public ResponseEntity<Page<CourseResponseDTO>> getAllAuthenticatedUserCourses(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+            Authentication authentication) {
+
+        // Obtenemos el usuario autenticado
+        User user = (User) authentication.getPrincipal();
+        // Obtenemos todos los cursos del usuario autenticado
+        return ResponseEntity.ok(courseService.getAllAuthenticatedUserCourses(page, size, user));
     }
 
     /**
@@ -81,16 +66,8 @@ public class CourseController {
      */
     @GetMapping("{id}")
     public ResponseEntity<CourseResponseDTO> getCourseById(@PathVariable int id) {
-        try {
-            // Obtenemos el curso por id y lo devolvemos
-            return ResponseEntity.ok().body(courseService.getCourseById(id));
-        } catch (RuntimeException e) {
-            // Si no existe, devolvemos un error 404
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            // Si ocurre un error, devolvemos un error 500
-            return ResponseEntity.status(500).build();
-        }
+        // Obtenemos el curso por id y lo devolvemos
+        return ResponseEntity.ok(courseService.getCourseById(id));
     }
 
     /**
@@ -104,10 +81,10 @@ public class CourseController {
     @PostMapping("")
     public ResponseEntity<CourseResponseDTO> createCourse(@RequestBody CourseRequestDTO dto,
             Authentication authentication) {
-        // Obtenemos el usuario autenticado
-        User user = (User) authentication.getPrincipal();
 
-        return ResponseEntity.ok().body(courseService.createCourse(dto, user));
+        User user = (User) authentication.getPrincipal();
+        CourseResponseDTO created = courseService.createCourse(dto, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     /**
@@ -118,14 +95,12 @@ public class CourseController {
      * @return Objeto con los datos del curso actualizado
      */
     @PutMapping("{id}")
-    public ResponseEntity<CourseResponseDTO> updateCourse(@PathVariable int id, @RequestBody CourseRequestDTO dto) {
-        try {
-            return ResponseEntity.ok().body(courseService.updateCourse(id, dto));
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
-        }
+    public ResponseEntity<CourseResponseDTO> updateCourse(@PathVariable int id, @RequestBody CourseRequestDTO dto,
+            Authentication authentication) {
+
+        // Obtenemos el usuario autenticado
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(courseService.updateCourse(id, dto, user));
     }
 
     /**
@@ -135,18 +110,11 @@ public class CourseController {
      * @return Devuelve si se ha eliminado correctamente o no
      */
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteCourse(@PathVariable int id) {
-        try {
-            System.out.println("Ha entrado en delete course");
-            courseService.deleteCourse(id);
-            return ResponseEntity.ok().body("Course deleted succesfully.");
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(403).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
+    public ResponseEntity<Void> deleteCourse(@PathVariable int id, Authentication authentication) {
+        // Obtenemos el usuario autenticado
+        User user = (User) authentication.getPrincipal();
+        courseService.deleteCourse(id, user);
+        return ResponseEntity.noContent().build();
     }
 
 }

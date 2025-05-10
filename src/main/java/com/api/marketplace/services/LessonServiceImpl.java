@@ -1,20 +1,18 @@
 package com.api.marketplace.services;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
-import org.hibernate.MappingException;
-import org.modelmapper.ConfigurationException;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.api.marketplace.daos.Course;
 import com.api.marketplace.daos.Lesson;
+import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.LessonRequestDTO;
 import com.api.marketplace.dtos.LessonResponseDTO;
 import com.api.marketplace.repositories.CourseRepository;
@@ -35,74 +33,57 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public List<LessonResponseDTO> getAllLessons()
-            throws IllegalArgumentException, MappingException, ConfigurationException {
+    public List<LessonResponseDTO> getAllLessons() {
         return lessonRepository.findAll().stream().map(lesson -> modelMapper.map(lesson, LessonResponseDTO.class))
                 .toList();
     }
 
     @Override
     public Page<LessonResponseDTO> getAllLessonsFromCourse(int idCourse, int page, int size) {
-        // Obtenemos el curso por el id
-        Optional<Course> findCourse = courseRepository.findById(idCourse);
+        Course course = courseRepository.findById(idCourse)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
-        if (findCourse.isEmpty()) {
-            throw new IllegalArgumentException("Course not found");
-        }
-
-        Course course = findCourse.get();
-        // Obtenemos la pagina de lecciones por el curso
         Pageable pageable = PageRequest.of(page, size);
-        Page<Lesson> lessons = lessonRepository.findByCourse(course, pageable);
-
-        // Devolvemos la pagina convertida a DTO
-        return lessons.map(lesson -> modelMapper.map(lesson, LessonResponseDTO.class));
+        return lessonRepository.findByCourse(course, pageable)
+                .map(lesson -> modelMapper.map(lesson, LessonResponseDTO.class));
     }
 
     @Override
-    public LessonResponseDTO getLessonById(int idLesson)
-            throws IllegalArgumentException, MappingException, ConfigurationException {
-        Optional<Lesson> findLesson = lessonRepository.findById(idLesson);
-
-        if (findLesson.isEmpty()) {
-            throw new IllegalArgumentException("Lesson not found");
-        }
-
-        Lesson lesson = findLesson.get();
+    public LessonResponseDTO getLessonById(int idLesson) {
+        Lesson lesson = lessonRepository.findById(idLesson)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Leccion no encontrada"));
 
         return modelMapper.map(lesson, LessonResponseDTO.class);
     }
 
     @Override
-    public LessonResponseDTO createLesson(LessonRequestDTO dto) throws IllegalArgumentException,
-            ConfigurationException, MappingException, OptimisticLockingFailureException {
+    public LessonResponseDTO createLesson(LessonRequestDTO dto) {
 
-        Optional<Course> findCourse = courseRepository.findById(dto.getIdCourse());
-        if (findCourse.isEmpty()) {
-            throw new IllegalArgumentException("Course not found");
-        }
-        Course course = findCourse.get();
-        Lesson newLesson = new Lesson();
-        newLesson.setTitle(dto.getTitle());
-        newLesson.setVideo_url(dto.getVideo_url());
-        newLesson.setDescription(dto.getDescription());
-        newLesson.setThumbnail_url(dto.getThumbnail_url());
-        newLesson.setDurationMinutes(dto.getDurationMinutes());
-        newLesson.setFreePreview(dto.isFreePreview());
-        newLesson.setCourse(course);
+        Course course = courseRepository.findById(dto.getIdCourse())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
-        return modelMapper.map(lessonRepository.save(newLesson), LessonResponseDTO.class);
+        Lesson lesson = new Lesson();
+        lesson.setTitle(dto.getTitle());
+        lesson.setVideo_url(dto.getVideo_url());
+        lesson.setDescription(dto.getDescription());
+        lesson.setThumbnail_url(dto.getThumbnail_url());
+        lesson.setDurationMinutes(dto.getDurationMinutes());
+        lesson.setFreePreview(dto.isFreePreview());
+        lesson.setCourse(course);
+
+        Lesson saved = lessonRepository.save(lesson);
+        return modelMapper.map(saved, LessonResponseDTO.class);
     }
 
     @Override
-    public LessonResponseDTO updateLesson(int idLesson, LessonRequestDTO dto) {
-        Optional<Lesson> findLesson = lessonRepository.findById(idLesson);
+    public LessonResponseDTO updateLesson(int idLesson, LessonRequestDTO dto, User authenticatedUser) {
+        Lesson lesson = lessonRepository.findById(idLesson)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lección no encontrada"));
 
-        if (findLesson.isEmpty()) {
-            throw new IllegalArgumentException("Lesson not found");
+        if (lesson.getCourse().getUser().getId() != authenticatedUser.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar esta lección");
         }
 
-        Lesson lesson = findLesson.get();
         lesson.setTitle(dto.getTitle());
         lesson.setDescription(dto.getDescription());
         lesson.setThumbnail_url(dto.getThumbnail_url());
@@ -113,15 +94,13 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public void deleteLesson(int idLesson)
-            throws IllegalArgumentException, OptimisticLockingFailureException, NoSuchElementException {
-        Optional<Lesson> findLesson = lessonRepository.findById(idLesson);
+    public void deleteLesson(int idLesson, User authenticatedUser) {
+        Lesson lesson = lessonRepository.findById(idLesson)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
-        if (findLesson.isEmpty()) {
-            throw new IllegalArgumentException("Lesson not found");
+        if (lesson.getCourse().getUser().getId() != authenticatedUser.getId()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar esta lección");
         }
-
-        Lesson lesson = findLesson.get();
 
         lessonRepository.delete(lesson);
     }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 
+import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.LessonRequestDTO;
 import com.api.marketplace.dtos.LessonResponseDTO;
 
@@ -52,12 +53,12 @@ public interface LessonService {
      * @param dto      LessonRequestDTO objeto con los nuevos datos del lesson
      * @return LessonResponseDTO objeto con los nuevos datos del lesson
      */
-    LessonResponseDTO updateLesson(int idLesson, LessonRequestDTO dto);
+    LessonResponseDTO updateLesson(int idLesson, LessonRequestDTO dto, User authenticatedUser);
 
     /**
      * Metodo que elimina un lesson por su id
      * 
      * @param idLesson Id del lesson a eliminar
      */
-    void deleteLesson(int idLesson);
+    void deleteLesson(int idLesson, User authenticatedUser);
 }

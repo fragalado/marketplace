@@ -2,6 +2,7 @@ package com.api.marketplace.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.UserDTO;
@@ -9,6 +10,7 @@ import com.api.marketplace.dtos.UserUpdateRequestDTO;
 import com.api.marketplace.services.UserServiceImpl;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,11 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-
-    // Methods
-    // Profile info -> OK
-    // Update profile -> OK
-    // Delete profile -> OK
 
     private final UserServiceImpl userService;
     private final ModelMapper modelMapper;
@@ -47,11 +44,10 @@ public class UserController {
     public ResponseEntity<UserDTO> profileInfo(Authentication authentication) {
         // Obtenemos el usuario autenticado que hace la petición
         User user = (User) authentication.getPrincipal();
-        System.out.println("Username: " + user.getUsername());
 
         // Pasamos el usuario a DTO
         UserDTO userDTO = modelMapper.map(user, UserDTO.class);
-        return ResponseEntity.ok().body(userDTO);
+        return ResponseEntity.ok(userDTO);
     }
 
     /**
@@ -67,11 +63,9 @@ public class UserController {
             Authentication authentication) {
         // Obtenemos el usuario autenticado que hace la petición
         User user = (User) authentication.getPrincipal();
-        System.out.println("User: " + user.getUsername());
-        System.out.println("User: " + user.getEmail());
 
         // Actualizamos el usuario
-        return ResponseEntity.ok().body(userService.updateUser(userDTO, user));
+        return ResponseEntity.ok(userService.updateUser(userDTO, user));
     }
 
     /**
@@ -82,16 +76,16 @@ public class UserController {
      * @return Devuelve si el usuario se ha eliminado correctamente o no.
      */
     @DeleteMapping("")
-    public ResponseEntity<String> deleteProfile(Authentication authentication) {
-        // Obtenemos el usuario autenticado que hace la petición
+    public ResponseEntity<Void> deleteProfile(Authentication authentication) {
         User user = (User) authentication.getPrincipal();
 
-        // Llamamos al servicio para eliminar el usuario
-        if (userService.deleteUser(user.getId())) {
-            return ResponseEntity.ok().body("User deleted successfully");
-        } else {
-            return ResponseEntity.badRequest().body("Error deleting user");
+        boolean deleted = userService.deleteUser(user.getId());
+
+        if (!deleted) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "No se pudo eliminar el usuario");
         }
+
+        return ResponseEntity.noContent().build(); // 204 sin cuerpo
     }
 
 }
