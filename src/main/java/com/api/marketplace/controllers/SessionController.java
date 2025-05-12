@@ -10,8 +10,6 @@ import com.api.marketplace.jwt.AuthService;
 import com.api.marketplace.jwt.JwtService;
 import com.api.marketplace.jwt.TokenResponse;
 import com.api.marketplace.repositories.UserRepository;
-import com.api.marketplace.services.UserService;
-import com.api.marketplace.services.UserServiceImpl;
 
 import io.jsonwebtoken.JwtException;
 
