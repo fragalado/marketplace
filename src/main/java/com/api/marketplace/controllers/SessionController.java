@@ -10,7 +10,7 @@ import com.api.marketplace.jwt.AuthService;
 import com.api.marketplace.jwt.JwtService;
 import com.api.marketplace.jwt.TokenResponse;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,36 +19,32 @@ import org.springframework.web.bind.annotation.RequestBody;
 @RequestMapping("/auth")
 public class SessionController {
 
-    // Methods
-    // Register -> OK
-    // Login -> OK
+    private final AuthService authService;
+    private final JwtService jwtService;
 
-    @Autowired
-    AuthService authenticationService;
-
-    @Autowired
-    JwtService jwtService;
-
-    @PostMapping("/signup")
-    public ResponseEntity<User> register(@RequestBody UserRegisterDTO registerUserDto) {
-        try {
-            User registeredUser = authenticationService.signup(registerUserDto);
-
-            return ResponseEntity.ok(registeredUser);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(null);
-        }
+    public SessionController(AuthService authService, JwtService jwtService) {
+        this.authService = authService;
+        this.jwtService = jwtService;
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<TokenResponse> authenticate(@RequestBody UserLoginDTO loginUserDto) {
-        User authenticatedUser = authenticationService.authenticate(loginUserDto);
-        System.out.println("USername: " + authenticatedUser.getUsername());
-        String jwtToken = jwtService.getToken(authenticatedUser);
+    /**
+     * Registra un nuevo usuario.
+     */
+    @PostMapping("/register")
+    public ResponseEntity<TokenResponse> register(@RequestBody UserRegisterDTO dto) {
+        User user = authService.signup(dto);
+        String token = jwtService.generateToken(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new TokenResponse(token));
+    }
 
-        return ResponseEntity.ok(new TokenResponse(jwtToken));
+    /**
+     * Autentica un usuario existente.
+     */
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@RequestBody UserLoginDTO dto) {
+        User user = authService.authenticate(dto);
+        String token = jwtService.generateToken(user);
+        return ResponseEntity.ok(new TokenResponse(token));
     }
 
 }
