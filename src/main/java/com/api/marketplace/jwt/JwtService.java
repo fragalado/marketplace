@@ -26,9 +26,6 @@ public class JwtService {
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
-    @Value("${security.jwt.expiration-time}")
-    private long jwtExpiration;
-
     private Key key;
 
     @PostConstruct
@@ -47,7 +44,16 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(user.getEmail()) // usamos el email como subject
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 15)) // 15 minutos
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(User user) {
+        return Jwts.builder()
+                .setSubject(user.getEmail())
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7)) // 7 días
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

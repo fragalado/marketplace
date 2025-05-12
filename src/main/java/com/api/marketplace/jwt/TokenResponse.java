@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class TokenResponse {
 
     // Atributos
-    String token;
+    String accessToken;
+    String refreshToken;
 }
