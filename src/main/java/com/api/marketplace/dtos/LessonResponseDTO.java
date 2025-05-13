@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class LessonResponseDTO {
 
     // Atributos
-    private int id;
+    private String uuid;
     private String title;
     private String video_url;
     private int position;

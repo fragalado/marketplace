@@ -1,6 +1,7 @@
 package com.api.marketplace.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -39,8 +40,8 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public Page<LessonResponseDTO> getAllLessonsFromCourse(int idCourse, int page, int size) {
-        Course course = courseRepository.findById(idCourse)
+    public Page<LessonResponseDTO> getAllLessonsFromCourse(UUID uuidCourse, int page, int size) {
+        Course course = courseRepository.findByUuid(uuidCourse)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
         Pageable pageable = PageRequest.of(page, size);
@@ -49,8 +50,8 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public LessonResponseDTO getLessonById(int idLesson) {
-        Lesson lesson = lessonRepository.findById(idLesson)
+    public LessonResponseDTO getLessonByUuid(UUID uuidLesson) {
+        Lesson lesson = lessonRepository.findByUuid(uuidLesson)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Leccion no encontrada"));
 
         return modelMapper.map(lesson, LessonResponseDTO.class);
@@ -76,8 +77,8 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public LessonResponseDTO updateLesson(int idLesson, LessonRequestDTO dto, User authenticatedUser) {
-        Lesson lesson = lessonRepository.findById(idLesson)
+    public LessonResponseDTO updateLesson(UUID uuidLesson, LessonRequestDTO dto, User authenticatedUser) {
+        Lesson lesson = lessonRepository.findByUuid(uuidLesson)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lección no encontrada"));
 
         if (lesson.getCourse().getUser().getId() != authenticatedUser.getId()) {
@@ -94,8 +95,8 @@ public class LessonServiceImpl implements LessonService {
     }
 
     @Override
-    public void deleteLesson(int idLesson, User authenticatedUser) {
-        Lesson lesson = lessonRepository.findById(idLesson)
+    public void deleteLesson(UUID uuidLesson, User authenticatedUser) {
+        Lesson lesson = lessonRepository.findByUuid(uuidLesson)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
         if (lesson.getCourse().getUser().getId() != authenticatedUser.getId()) {

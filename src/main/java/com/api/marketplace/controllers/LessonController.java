@@ -9,6 +9,7 @@ import com.api.marketplace.dtos.LessonResponseDTO;
 import com.api.marketplace.services.LessonServiceImpl;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +38,9 @@ public class LessonController {
      * @param id Id of the Lesson
      * @return ResponseEntity<LessonResponseDTO>
      */
-    @GetMapping("{id}")
-    public ResponseEntity<LessonResponseDTO> getLessonById(@PathVariable int id) {
-        return ResponseEntity.ok(lessonService.getLessonById(id));
+    @GetMapping("{uuid}")
+    public ResponseEntity<LessonResponseDTO> getLessonByUuid(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(lessonService.getLessonByUuid(uuid));
     }
 
     /**
@@ -58,10 +59,10 @@ public class LessonController {
      * @param idCourse Id of the Course
      * @return ResponseEntity<Page<LessonResponseDTO>>
      */
-    @GetMapping("/course/{idCourse}")
-    public ResponseEntity<Page<LessonResponseDTO>> getAllLessonsFromCourse(@PathVariable int idCourse,
+    @GetMapping("/course/{uuidCourse}")
+    public ResponseEntity<Page<LessonResponseDTO>> getAllLessonsFromCourse(@PathVariable UUID uuidCourse,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(lessonService.getAllLessonsFromCourse(idCourse, page, size));
+        return ResponseEntity.ok(lessonService.getAllLessonsFromCourse(uuidCourse, page, size));
     }
 
     /**
@@ -82,12 +83,12 @@ public class LessonController {
      * @param dto LessonRequestDTO object containing the lesson data
      * @return ResponseEntity<LessonResponseDTO>
      */
-    @PutMapping("{id}")
-    public ResponseEntity<LessonResponseDTO> updateLesson(@PathVariable int id, @RequestBody LessonRequestDTO dto,
+    @PutMapping("{uuid}")
+    public ResponseEntity<LessonResponseDTO> updateLesson(@PathVariable UUID uuid, @RequestBody LessonRequestDTO dto,
             Authentication authentication) {
         // Obtenemos el usuario autenticado
         User user = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(lessonService.updateLesson(id, dto, user));
+        return ResponseEntity.ok(lessonService.updateLesson(uuid, dto, user));
     }
 
     /**
@@ -96,12 +97,12 @@ public class LessonController {
      * @param idLesson Id of the Lesson
      * @return ResponseEntity<String>
      */
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteLesson(@PathVariable("id") int idLesson, Authentication authentication) {
+    @DeleteMapping("{uuid}")
+    public ResponseEntity<Void> deleteLesson(@PathVariable("uuid") UUID uuid, Authentication authentication) {
 
         // Obtenemos el usuario autenticado
         User user = (User) authentication.getPrincipal();
-        lessonService.deleteLesson(idLesson, user);
+        lessonService.deleteLesson(uuid, user);
         return ResponseEntity.noContent().build();
     }
 

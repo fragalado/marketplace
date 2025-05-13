@@ -1,6 +1,7 @@
 package com.api.marketplace.services;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -35,8 +36,22 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public Page<CourseResponseDTO> getPopularCourses(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return courseRepository.findByPublishedTrue(pageable)
+                .map(course -> modelMapper.map(course, CourseResponseDTO.class));
+    }
+
+    @Override
     public CourseResponseDTO getCourseById(int id) {
         Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
+        return modelMapper.map(course, CourseResponseDTO.class);
+    }
+
+    @Override
+    public CourseResponseDTO getCourseByUuid(UUID uuid) {
+        Course course = courseRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
         return modelMapper.map(course, CourseResponseDTO.class);
     }
@@ -54,9 +69,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponseDTO updateCourse(int id, CourseRequestDTO dto, User authenticatedUser) {
+    public CourseResponseDTO updateCourse(UUID uuid, CourseRequestDTO dto, User authenticatedUser) {
         // 1. Buscar el curso o lanzar 404 si no existe
-        Course course = courseRepository.findById(id)
+        Course course = courseRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
         // 2. Verificar que el curso pertenece al usuario autenticado
@@ -83,9 +98,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void deleteCourse(int id, User authenticatedUser) {
+    public void deleteCourse(UUID uuid, User authenticatedUser) {
         // 1. Buscar el curso o lanzar 404 si no existe
-        Course course = courseRepository.findById(id)
+        Course course = courseRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
         // 2. Verificar que el curso pertenece al usuario autenticado

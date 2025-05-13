@@ -1,6 +1,7 @@
 package com.api.marketplace.services;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 
@@ -23,20 +24,20 @@ public interface LessonService {
     /**
      * Metodo que devuelve una lista de lessons paginada
      * 
-     * @param idCourse Id del curso
-     * @param page     Numero de pagina
-     * @param size     Tamanyo de la pagina
+     * @param uuidCourse UUID del curso
+     * @param page       Numero de pagina
+     * @param size       Tamanyo de la pagina
      * @return Page<LessonResponseDTO>
      */
-    Page<LessonResponseDTO> getAllLessonsFromCourse(int idCourse, int page, int size);
+    Page<LessonResponseDTO> getAllLessonsFromCourse(UUID uuidCourse, int page, int size);
 
     /**
      * Metodo que devuelve un lesson por su id
      * 
-     * @param idLesson Id del lesson a obtener
+     * @param uuidLesson UUID del lesson a obtener
      * @return LessonResponseDTO
      */
-    LessonResponseDTO getLessonById(int idLesson);
+    LessonResponseDTO getLessonByUuid(UUID uuidLesson);
 
     /**
      * Metodo que crea un nuevo lesson
@@ -49,16 +50,16 @@ public interface LessonService {
     /**
      * Metodo que actualia un lesson
      * 
-     * @param idLesson Id del lesson a actualizar
-     * @param dto      LessonRequestDTO objeto con los nuevos datos del lesson
+     * @param uuidLesson UUID del lesson a actualizar
+     * @param dto        LessonRequestDTO objeto con los nuevos datos del lesson
      * @return LessonResponseDTO objeto con los nuevos datos del lesson
      */
-    LessonResponseDTO updateLesson(int idLesson, LessonRequestDTO dto, User authenticatedUser);
+    LessonResponseDTO updateLesson(UUID uuidLesson, LessonRequestDTO dto, User authenticatedUser);
 
     /**
-     * Metodo que elimina un lesson por su id
+     * Metodo que elimina un lesson por su uuid
      * 
-     * @param idLesson Id del lesson a eliminar
+     * @param uuidLesson UUID del lesson a eliminar
      */
-    void deleteLesson(int idLesson, User authenticatedUser);
+    void deleteLesson(UUID uuidLesson, User authenticatedUser);
 }

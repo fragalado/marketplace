@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class CourseResponseDTO {
 
     // Atributos
-    private int id;
+    private String uuid;
     private String title;
     private String description;
     private Category category;

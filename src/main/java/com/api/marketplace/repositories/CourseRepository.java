@@ -1,5 +1,8 @@
 package com.api.marketplace.repositories;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -29,4 +32,11 @@ public interface CourseRepository extends JpaRepository<Course, Integer> {
      * @return Devuelve una pagina con objetos de tipo curso
      */
     Page<Course> findByUser(User user, Pageable pageable);
+
+    /**
+     * 
+     * @param uuid
+     * @return
+     */
+    Optional<Course> findByUuid(UUID uuid);
 }

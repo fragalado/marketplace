@@ -1,7 +1,9 @@
 package com.api.marketplace.daos;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,8 @@ public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID uuid = UUID.randomUUID();
     @Temporal(TemporalType.DATE)
     private LocalDate purchase_date = LocalDate.now();
     private float price_paid;

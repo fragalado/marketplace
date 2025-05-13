@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class UserDTO {
 
     // Atributos
-    private int id;
+    private String uuid;
     private String username;
     private String firstName;
     private String lastName;

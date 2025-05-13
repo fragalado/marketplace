@@ -2,6 +2,7 @@ package com.api.marketplace.daos;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import com.api.marketplace.enums.Category;
 import com.api.marketplace.enums.Level;
@@ -32,6 +33,8 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @Column(nullable = false, unique = true, updatable = false)
+    private UUID uuid = UUID.randomUUID();
     @Column(nullable = false)
     private String title;
     @Column(length = 1000)

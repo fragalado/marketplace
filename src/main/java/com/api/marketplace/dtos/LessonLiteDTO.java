@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class LessonLiteDTO {
 
     // Atributos
-    private int id;
+    private String uuid;
     private String title;
     private int position;
     private String thumbnail_url;

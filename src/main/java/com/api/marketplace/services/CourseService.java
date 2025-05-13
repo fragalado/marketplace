@@ -1,5 +1,7 @@
 package com.api.marketplace.services;
 
+import java.util.UUID;
+
 import org.springframework.data.domain.Page;
 
 import com.api.marketplace.daos.User;
@@ -20,11 +22,22 @@ public interface CourseService {
 
     Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated);
 
+    /**
+     * Retrieves popular courses (published) paginated
+     * 
+     * @param page Page number to retrieve
+     * @param size Number of items per page
+     * @return A page of CourseResponseDTO objects
+     */
+    Page<CourseResponseDTO> getPopularCourses(int page, int size);
+
     CourseResponseDTO getCourseById(int id);
+
+    CourseResponseDTO getCourseByUuid(UUID uuid);
 
     CourseResponseDTO createCourse(CourseRequestDTO dto, User instructor);
 
-    CourseResponseDTO updateCourse(int id, CourseRequestDTO dto, User authenticatedUser);
+    CourseResponseDTO updateCourse(UUID uuid, CourseRequestDTO dto, User authenticatedUser);
 
-    void deleteCourse(int id, User authenticatedUser);
+    void deleteCourse(UUID uuid, User authenticatedUser);
 }

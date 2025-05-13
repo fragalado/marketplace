@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 public class CourseLiteDTO {
 
     // Atributos
-    private int id;
+    private String uuid;
     private String title;
 }
