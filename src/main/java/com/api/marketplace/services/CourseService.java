@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.CourseRequestDTO;
 import com.api.marketplace.dtos.CourseResponseDTO;
+import com.api.marketplace.dtos.CourseResponseLiteDTO;
 
 public interface CourseService {
 
@@ -18,7 +19,7 @@ public interface CourseService {
      * @param filter Filter to apply to the courses
      * @return A page of CourseResponseDTO objects
      */
-    Page<CourseResponseDTO> getAllPublishedCoursesPaginated(int page, int size);
+    Page<CourseResponseLiteDTO> getAllPublishedCoursesPaginated(int page, int size);
 
     Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated);
 

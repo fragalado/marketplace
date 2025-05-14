@@ -15,6 +15,7 @@ import com.api.marketplace.daos.Course;
 import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.CourseRequestDTO;
 import com.api.marketplace.dtos.CourseResponseDTO;
+import com.api.marketplace.dtos.CourseResponseLiteDTO;
 import com.api.marketplace.repositories.CourseRepository;
 
 @Service
@@ -29,10 +30,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponseDTO> getAllPublishedCoursesPaginated(int page, int size) {
+    public Page<CourseResponseLiteDTO> getAllPublishedCoursesPaginated(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return courseRepository.findByPublishedTrue(pageable)
-                .map(course -> modelMapper.map(course, CourseResponseDTO.class));
+                .map(course -> modelMapper.map(course, CourseResponseLiteDTO.class));
     }
 
     @Override

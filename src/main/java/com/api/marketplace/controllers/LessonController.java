@@ -87,6 +87,7 @@ public class LessonController {
     public ResponseEntity<LessonResponseDTO> updateLesson(@PathVariable UUID uuid, @RequestBody LessonRequestDTO dto,
             Authentication authentication) {
         // Obtenemos el usuario autenticado
+        System.out.println("Ha entrado aqui");
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(lessonService.updateLesson(uuid, dto, user));
     }

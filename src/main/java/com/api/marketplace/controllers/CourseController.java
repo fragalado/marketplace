@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.CourseRequestDTO;
 import com.api.marketplace.dtos.CourseResponseDTO;
+import com.api.marketplace.dtos.CourseResponseLiteDTO;
 import com.api.marketplace.services.CourseServiceImpl;
 
 import java.util.UUID;
@@ -43,7 +44,8 @@ public class CourseController {
      * @return Devuelve una pagina con objetos de tipo curso
      */
     @GetMapping("")
-    public ResponseEntity<Page<CourseResponseDTO>> getAllPublishedCourses(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<Page<CourseResponseLiteDTO>> getAllPublishedCourses(
+            @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         // Obtenemos todos los cursos de la base de datos
         return ResponseEntity.ok(courseService.getAllPublishedCoursesPaginated(page, size));
@@ -76,12 +78,6 @@ public class CourseController {
     public ResponseEntity<Page<CourseResponseDTO>> getPopularCourses(@RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "6") int size) {
         return ResponseEntity.ok(courseService.getPopularCourses(page, size));
-    }
-
-    @GetMapping("purchased")
-    public ResponseEntity<Page<CourseResponseDTO>> getPurchasedCourses(@RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "6") int size) {
-        return null;
     }
 
     /**

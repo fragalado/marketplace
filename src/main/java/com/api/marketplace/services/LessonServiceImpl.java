@@ -60,7 +60,7 @@ public class LessonServiceImpl implements LessonService {
     @Override
     public LessonResponseDTO createLesson(LessonRequestDTO dto) {
 
-        Course course = courseRepository.findById(dto.getIdCourse())
+        Course course = courseRepository.findByUuid(UUID.fromString(dto.getIdCourse()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Curso no encontrado"));
 
         Lesson lesson = new Lesson();
@@ -78,10 +78,12 @@ public class LessonServiceImpl implements LessonService {
 
     @Override
     public LessonResponseDTO updateLesson(UUID uuidLesson, LessonRequestDTO dto, User authenticatedUser) {
+        System.out.println("Ha entrado");
         Lesson lesson = lessonRepository.findByUuid(uuidLesson)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lección no encontrada"));
 
         if (lesson.getCourse().getUser().getId() != authenticatedUser.getId()) {
+            System.out.println("Ha entrado en que no tiene permiso para modificar la leccion");
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tienes permiso para modificar esta lección");
         }
 

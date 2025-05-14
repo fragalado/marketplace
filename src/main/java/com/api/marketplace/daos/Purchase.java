@@ -27,16 +27,22 @@ public class Purchase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     @Column(nullable = false, unique = true, updatable = false)
     private UUID uuid = UUID.randomUUID();
+
     @Temporal(TemporalType.DATE)
-    private LocalDate purchase_date = LocalDate.now();
-    private float price_paid;
+    @Column(nullable = false)
+    private LocalDate purchaseDate = LocalDate.now();
+
+    @Column(nullable = false)
+    private float pricePaid;
 
     // FK
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

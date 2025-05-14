@@ -5,11 +5,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.api.marketplace.daos.User;
+import com.api.marketplace.dtos.CourseResponseDTO;
 import com.api.marketplace.dtos.UserDTO;
 import com.api.marketplace.dtos.UserUpdateRequestDTO;
 import com.api.marketplace.services.UserServiceImpl;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controlador para Usuario
@@ -86,6 +89,13 @@ public class UserController {
         }
 
         return ResponseEntity.noContent().build(); // 204 sin cuerpo
+    }
+
+    @GetMapping("me/courses")
+    public ResponseEntity<Page<CourseResponseDTO>> getPurchasedCourses(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "6") int size, Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(userService.getPurchasedCourses(page, size, user));
     }
 
 }

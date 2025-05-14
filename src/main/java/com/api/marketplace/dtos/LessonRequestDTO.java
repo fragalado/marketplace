@@ -16,5 +16,5 @@ public class LessonRequestDTO {
     private String thumbnail_url;
     private int durationMinutes;
     private boolean freePreview;
-    private int idCourse;
+    private String idCourse;
 }

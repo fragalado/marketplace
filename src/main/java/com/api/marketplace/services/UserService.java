@@ -1,6 +1,9 @@
 package com.api.marketplace.services;
 
+import org.springframework.data.domain.Page;
+
 import com.api.marketplace.daos.User;
+import com.api.marketplace.dtos.CourseResponseDTO;
 import com.api.marketplace.dtos.UserDTO;
 import com.api.marketplace.dtos.UserUpdateRequestDTO;
 
@@ -23,4 +26,6 @@ public interface UserService {
      *         contrario
      */
     boolean deleteUser(int userId);
+
+    Page<CourseResponseDTO> getPurchasedCourses(int page, int size, User userAuthenticated);
 }

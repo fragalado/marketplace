@@ -1,8 +1,6 @@
 package com.api.marketplace.dtos;
 
 import java.time.LocalDateTime;
-import java.util.List;
-
 import com.api.marketplace.enums.Category;
 import com.api.marketplace.enums.Level;
 
@@ -10,10 +8,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
-public class CourseResponseDTO {
+public class CourseResponseLiteDTO {
 
     // Atributos
     private String uuid;
@@ -30,6 +28,5 @@ public class CourseResponseDTO {
     private LocalDateTime created_at;
     private LocalDateTime updated_at;
 
-    private UserDTO user;
-    private List<LessonLiteDTO> lessons;
+    private UserLiteDTO user;
 }
