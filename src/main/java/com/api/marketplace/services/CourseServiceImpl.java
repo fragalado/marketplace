@@ -16,6 +16,7 @@ import com.api.marketplace.daos.User;
 import com.api.marketplace.dtos.CourseRequestDTO;
 import com.api.marketplace.dtos.CourseResponseDTO;
 import com.api.marketplace.dtos.CourseResponseLiteDTO;
+import com.api.marketplace.enums.Category;
 import com.api.marketplace.repositories.CourseRepository;
 
 @Service
@@ -30,10 +31,26 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponseLiteDTO> getAllPublishedCoursesPaginated(int page, int size) {
+    public Page<CourseResponseLiteDTO> getAllPublishedCoursesPaginated(int page, int size, String title,
+            String category) {
         Pageable pageable = PageRequest.of(page, size);
-        return courseRepository.findByPublishedTrue(pageable)
-                .map(course -> modelMapper.map(course, CourseResponseLiteDTO.class));
+
+        // Aquí puedes usar métodos dinámicos con Spring Data JPA, por ejemplo:
+        Page<Course> coursePage;
+
+        if (title != null && category != null) {
+            coursePage = courseRepository.findByPublishedTrueAndTitleContainingIgnoreCaseAndCategory(
+                    title, Category.valueOf(category.toUpperCase()), pageable);
+        } else if (title != null) {
+            coursePage = courseRepository.findByPublishedTrueAndTitleContainingIgnoreCase(title, pageable);
+        } else if (category != null) {
+            coursePage = courseRepository.findByPublishedTrueAndCategory(Category.valueOf(category.toUpperCase()),
+                    pageable);
+        } else {
+            coursePage = courseRepository.findByPublishedTrue(pageable);
+        }
+
+        return coursePage.map(course -> modelMapper.map(course, CourseResponseLiteDTO.class));
     }
 
     @Override
@@ -114,12 +131,25 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated) {
-        // Creamos objeto Pageable
+    public Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, String title, String category,
+            User userAuthenticated) {
         Pageable pageable = PageRequest.of(page, size);
-        // Obtenemos los cursos y los mapeamos para devolverlos como DTO
-        return courseRepository.findByUser(userAuthenticated, pageable)
-                .map(course -> modelMapper.map(course, CourseResponseDTO.class));
+
+        // Si hay filtros, aplicar con método personalizado
+        Page<Course> courses;
+
+        if (title != null && category != null) {
+            courses = courseRepository.findByUserAndTitleContainingIgnoreCaseAndCategory(userAuthenticated, title,
+                    Category.valueOf(category), pageable);
+        } else if (title != null) {
+            courses = courseRepository.findByUserAndTitleContainingIgnoreCase(userAuthenticated, title, pageable);
+        } else if (category != null) {
+            courses = courseRepository.findByUserAndCategory(userAuthenticated, Category.valueOf(category), pageable);
+        } else {
+            courses = courseRepository.findByUser(userAuthenticated, pageable);
+        }
+
+        return courses.map(course -> modelMapper.map(course, CourseResponseDTO.class));
     }
 
 }

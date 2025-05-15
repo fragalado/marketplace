@@ -14,14 +14,16 @@ public interface CourseService {
     /**
      * Retrieves a paginated list of all published courses
      * 
-     * @param page   Page number to retrieve
-     * @param size   Number of items per page
-     * @param filter Filter to apply to the courses
+     * @param page     Page number to retrieve
+     * @param size     Number of items per page
+     * @param title    Title of the course
+     * @param category Category of the course
      * @return A page of CourseResponseDTO objects
      */
-    Page<CourseResponseLiteDTO> getAllPublishedCoursesPaginated(int page, int size);
+    Page<CourseResponseLiteDTO> getAllPublishedCoursesPaginated(int page, int size, String title, String category);
 
-    Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, User userAuthenticated);
+    Page<CourseResponseDTO> getAllAuthenticatedUserCourses(int page, int size, String title, String category,
+            User userAuthenticated);
 
     /**
      * Retrieves popular courses (published) paginated

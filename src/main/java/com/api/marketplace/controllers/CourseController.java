@@ -46,20 +46,23 @@ public class CourseController {
     @GetMapping("")
     public ResponseEntity<Page<CourseResponseLiteDTO>> getAllPublishedCourses(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category) {
         // Obtenemos todos los cursos de la base de datos
-        return ResponseEntity.ok(courseService.getAllPublishedCoursesPaginated(page, size));
+        return ResponseEntity.ok(courseService.getAllPublishedCoursesPaginated(page, size, title, category));
     }
 
     @GetMapping("my-courses")
     public ResponseEntity<Page<CourseResponseDTO>> getAllAuthenticatedUserCourses(
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category,
             Authentication authentication) {
 
         // Obtenemos el usuario autenticado
         User user = (User) authentication.getPrincipal();
         // Obtenemos todos los cursos del usuario autenticado
-        return ResponseEntity.ok(courseService.getAllAuthenticatedUserCourses(page, size, user));
+        return ResponseEntity.ok(courseService.getAllAuthenticatedUserCourses(page, size, title, category, user));
     }
 
     /**
