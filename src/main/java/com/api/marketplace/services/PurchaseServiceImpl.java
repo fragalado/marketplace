@@ -1,6 +1,8 @@
 package com.api.marketplace.services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,10 @@ import com.api.marketplace.dtos.PurchaseRequestDTO;
 import com.api.marketplace.repositories.CourseRepository;
 import com.api.marketplace.repositories.PurchaseRepository;
 
+/**
+ * Implementación del servicio de compras.
+ * Gestiona la lógica de compra de cursos por parte de los usuarios.
+ */
 @Service
 public class PurchaseServiceImpl implements PurchaseService {
 
@@ -26,23 +32,29 @@ public class PurchaseServiceImpl implements PurchaseService {
     }
 
     @Override
-    public void purchaseCourses(PurchaseRequestDTO request, User user) {
+    public int purchaseCourses(PurchaseRequestDTO request, User user) {
+
+        // Verificamos si la lista de UUIDs es nula o vacía
         if (request.getCourseUuids() == null || request.getCourseUuids().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La lista de cursos está vacía.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "La lista de cursos está vacía.");
         }
 
+        List<Purchase> purchasesToSave = new ArrayList<>();
+
+        // Iteramos por cada UUID de curso recibido
         for (UUID courseUuid : request.getCourseUuids()) {
+            // Verificamos si el curso existe
             Course course = courseRepository.findByUuid(courseUuid)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                             "Curso con UUID " + courseUuid + " no encontrado."));
 
-            // Verificamos si ya fue comprado
-            boolean alreadyPurchased = purchaseRepository.existsByUserAndCourse(user, course);
-            if (alreadyPurchased) {
-                // Saltamos este curso sin lanzar excepción
+            // Si el usuario ya ha comprado este curso, lo ignoramos
+            if (purchaseRepository.existsByUserAndCourse(user, course)) {
                 continue;
             }
 
+            // Creamos la compra
             Purchase purchase = new Purchase();
             purchase.setUser(user);
             purchase.setCourse(course);
@@ -50,13 +62,13 @@ public class PurchaseServiceImpl implements PurchaseService {
             purchase.setPurchaseDate(LocalDate.now());
             purchase.setUuid(UUID.randomUUID());
 
-            try {
-                purchaseRepository.save(purchase);
-            } catch (Exception e) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Error al guardar la compra del curso: " + course.getTitle(), e);
-            }
+            purchasesToSave.add(purchase);
         }
-    }
 
+        // Guardamos todas las compras válidas
+        purchaseRepository.saveAll(purchasesToSave);
+
+        // Devolvemos el número total de compras realizadas
+        return purchasesToSave.size();
+    }
 }

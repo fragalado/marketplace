@@ -1,6 +1,5 @@
 package com.api.marketplace.services;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -10,56 +9,60 @@ import com.api.marketplace.dtos.LessonRequestDTO;
 import com.api.marketplace.dtos.LessonResponseDTO;
 
 /**
- * Interfaz que define los metodos que daran servicio a Lesson
+ * Interfaz de servicio para la gestión de lecciones (lessons).
+ * Define las operaciones disponibles para crear, consultar, actualizar y
+ * eliminar lecciones.
  */
 public interface LessonService {
 
     /**
-     * Metodo que devuelve una lista con todos los lessons
-     * 
-     * @return List<LessonResponseDTO> lista con todos los lessons
+     * Obtiene todas las lecciones asociadas a un curso, de forma paginada.
+     * Solo el propietario del curso puede acceder a sus lecciones.
+     *
+     * @param uuidCourse        UUID del curso del que se quieren obtener las
+     *                          lecciones
+     * @param page              Número de página
+     * @param size              Tamaño de cada página
+     * @param authenticatedUser Usuario autenticado que realiza la petición
+     * @return Página con objetos de tipo LessonResponseDTO
      */
-    List<LessonResponseDTO> getAllLessons();
+    Page<LessonResponseDTO> getAllLessonsFromCourse(UUID uuidCourse, int page, int size, User authenticatedUser);
 
     /**
-     * Metodo que devuelve una lista de lessons paginada
-     * 
-     * @param uuidCourse UUID del curso
-     * @param page       Numero de pagina
-     * @param size       Tamanyo de la pagina
-     * @return Page<LessonResponseDTO>
-     */
-    Page<LessonResponseDTO> getAllLessonsFromCourse(UUID uuidCourse, int page, int size);
-
-    /**
-     * Metodo que devuelve un lesson por su id
-     * 
-     * @param uuidLesson UUID del lesson a obtener
-     * @return LessonResponseDTO
+     * Obtiene una lección específica a partir de su UUID.
+     *
+     * @param uuidLesson UUID de la lección
+     * @return DTO con la información de la lección
      */
     LessonResponseDTO getLessonByUuid(UUID uuidLesson);
 
     /**
-     * Metodo que crea un nuevo lesson
-     * 
-     * @param dto Objeto con los datos del nuevo lesson ha crear
-     * @return LessonResponseDTO objeto con los datos del nuevo lesson
+     * Crea una nueva lección asociada a un curso.
+     * Solo el instructor propietario del curso puede crear lecciones en él.
+     *
+     * @param dto               DTO con los datos de la nueva lección
+     * @param authenticatedUser Usuario autenticado que realiza la petición
+     * @return DTO con la información de la lección creada
      */
-    LessonResponseDTO createLesson(LessonRequestDTO dto);
+    LessonResponseDTO createLesson(LessonRequestDTO dto, User authenticatedUser);
 
     /**
-     * Metodo que actualia un lesson
-     * 
-     * @param uuidLesson UUID del lesson a actualizar
-     * @param dto        LessonRequestDTO objeto con los nuevos datos del lesson
-     * @return LessonResponseDTO objeto con los nuevos datos del lesson
+     * Actualiza una lección existente.
+     * Solo el instructor propietario del curso puede modificar sus lecciones.
+     *
+     * @param uuidLesson        UUID de la lección a actualizar
+     * @param dto               DTO con los nuevos datos de la lección
+     * @param authenticatedUser Usuario autenticado que realiza la petición
+     * @return DTO con la información actualizada de la lección
      */
     LessonResponseDTO updateLesson(UUID uuidLesson, LessonRequestDTO dto, User authenticatedUser);
 
     /**
-     * Metodo que elimina un lesson por su uuid
-     * 
-     * @param uuidLesson UUID del lesson a eliminar
+     * Elimina una lección específica.
+     * Solo el instructor propietario del curso puede eliminar sus lecciones.
+     *
+     * @param uuidLesson        UUID de la lección a eliminar
+     * @param authenticatedUser Usuario autenticado que realiza la petición
      */
     void deleteLesson(UUID uuidLesson, User authenticatedUser);
 }
