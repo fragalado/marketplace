@@ -83,7 +83,8 @@ public class SecurityConfig {
                 CorsConfiguration configuration = new CorsConfiguration();
 
                 // Orígenes permitidos (donde corre tu frontend)
-                configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4200"));
+                configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:4200",
+                                "http://franmarketplace.duckdns.org", "https://franmarketplace.duckdns.org"));
 
                 // Métodos HTTP permitidos
                 configuration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PUT", "OPTIONS"));
